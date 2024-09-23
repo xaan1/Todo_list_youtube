@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To Do Project</title>
+</head>
+<style>
+
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 30px ;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+ 
+}
+
+.container h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  margin-bottom:20px;
+}
+
+.checked{
+  text-decoration: line-through;
+  color: #ccc;
+
+}
+#form 
+{
+  display: flex;
+  margin-bottom: 20px;
+}
+#input {
+  flex: 1;
+  padding: 10px;
+  font-size: 20px;
+
+}
+
+button {
+  margin: 2px;
+  padding: 10px 20px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#tasks {
+  list-style: none;
+  padding: 0;
+  margin: 2px;
+}
+
+.todo {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background-color: #eee;
+  margin-bottom: 10px;
+  gap: 5px;
+}
+
+#task {
+  flex: 1;
+  font-size: 20px;
+}
+</style>
+<body>
+
+
+
+
+  <div class="container">
+    <h1>To Do List</h1>
+    <form id="form">
+      <input type="text" id="input" placeholder="Add a task..." />
+      <button type="submit">Add Task</button>
+    </form>
+
+    <ul id="tasks"></ul>
+  </div>
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+      const form = document.getElementById('form');
+      const input = document.getElementById('input');
+      const tasks = document.getElementById('tasks');
+
+
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const task = localStorage.getItem('task');
+        if(task) {
+          const taskList = JSON.parse(task);
+          taskList.forEach(task => addToTask(task));
+        }
+      });
+
+
+
+
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const text = input.value.trim();
+
+        if(text !== '') {
+
+          const task = {
+            id :  Date.now(),
+            text : text,
+            completed : false
+          }
+          addToTask(task)
+          SaveLocalStorage(task)
+        
+        }else {
+          alert('Please enter a task');
+        }
+        input.value = '';
+       
+      });
+
+
+
+      function addToTask(task) {
+        const item = document.createElement('li');
+
+        item.dataset.id = task.id
+        item.classList.add('todo');
+
+        if(task.completed === true) {
+          item.classList.add('checked');
+        }
+
+        item.innerHTML = `
+          <input id="${task.id}" type="checkbox"  
+           onchange="completeTask(${task.id})"
+
+          ${task.completed ? 'checked' : ''}  class="tick"
+          
+        />
+          <label for="${task.id}" class="tick"></label>
+          <span id="task">${task.text}</span>
+            <button 
+            onclick="editTask(${task.id})"
+            
+            class="delete" id="${task.id}">Edit</button>
+
+
+          <button
+             onclick="deleted(${task.id})"
+          
+          class="delete" id="${task.id}">Delete</button>
+        `;
+
+        // console.log(item);
+        tasks.append(item);
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+      function completeTask(id) {
+
+       
+        const item = document.querySelector(`[data-id="${id}"]`);
+
+   
+        item.classList.toggle('checked' , item.completed);
+
+
+        const taskList = JSON.parse(localStorage.getItem('task'));
+
+        const updatedTask = taskList.map(task => {
+          if(task.id === id) {
+            return {
+              ...task,
+              completed: !task.completed
+            }
+          }
+          return task;
+        });
+
+        localStorage.setItem('task', JSON.stringify(updatedTask));
+      }
+
+
+
+
+
+
+
+
+
+
+      const SaveLocalStorage = (task) => {
+      
+        const oldTask = localStorage.getItem('task') ? JSON.parse(localStorage.getItem('task')) : [];
+
+
+        oldTask.push(task);
+
+
+        localStorage.setItem('task', JSON.stringify(oldTask));
+
+
+      }
+
+
+
+
+
+// delted task from loaclstorage
+
+
+      function deleted(id) {
+        const item = document.querySelector(`[data-id="${id}"]`);
+        item.remove();
+        const task = JSON.parse(localStorage.getItem('task'));
+        const updatedTask = task.filter(task => task.id !== id);
+        localStorage.setItem('task', JSON.stringify(updatedTask));
+      }
+
+
+
+
+
+
+
+      function editTask(id) {
+        const item = document.querySelector(`[data-id="${id}"]`);
+        const task = item.querySelector('#task');
+        
+         const newTask = prompt('Edit Task', task.textContent);
+    
+
+         if(newTask !== ""){
+          task.textContent = newTask;
+
+
+const taskList = JSON.parse(localStorage.getItem('task'));
+
+const updatedTask = taskList.map(task => {
+  if(task.id === id) {
+    return {
+      ...task,
+      text: newTask
+    }
+  }
+  return task;
+});
+
+localStorage.setItem('task', JSON.stringify(updatedTask));
+
+         }else {
+        alert('Please enter a task');
+        return
+      }
+      
+         
+        
+     
+      } 
+
+
+
+
+
+      //  localstorage
+
+
+    </script>
+
+
+
+  
+</body>
+</html>
